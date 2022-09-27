@@ -122,3 +122,26 @@ resource "azurerm_dns_zone" "dns" {
   resource_group_name = azurerm_resource_group.app.name
 }
 
+resource "azurerm_public_ip" "bastion_ip" {
+  name                = "pip-bast"
+  location            = azurerm_resource_group.network.location
+  resource_group_name = azurerm_resource_group.network.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  tags = local.tags
+}
+
+resource "azurerm_bastion_host" "bastion_host" {
+  name                = "bast-westeurope"
+  location            = azurerm_resource_group.network.location
+  resource_group_name = azurerm_resource_group.network.name
+
+  ip_configuration {
+    name                 = "configuration"
+    subnet_id            = azurerm_subnet.subnetbastion.id
+    public_ip_address_id = azurerm_public_ip.bastion_ip.id
+  }
+
+  tags = local.tags
+}
